@@ -1,0 +1,102 @@
+package fractale;
+
+/** class fractale.
+*/
+import Complex.*;
+import java.lang.String;
+// Java program to demonstrate creation of pixel image
+import java.io.File;
+import java.io.IOException;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+public class fractale
+{
+    //compute fractale
+   static int compute_fractale(Complex poly[], Complex x0)
+    {
+        int iter =0;
+        Complex x=x0;
+        Complex xprev=x0;
+	  //debug
+        //System.out.println(" point   = " + x0);
+        while(((x.minus(xprev)).abs()<=2) &&(iter<=500)) {
+        	//to be replaced Horner scheme later....
+        	x= (x.times(x)).plus(poly[1].times(x)).plus(poly[0]);
+		//debug
+            //System.out.println("suite    = " + x);
+            //memo previous value
+            xprev=x;
+        	//increase iteration count
+        	iter=iter+1;
+        }
+        return iter;
+    }
+
+    public static void main(String args[])throws IOException
+    {
+        // Image file dimensions
+        int width = 1280, height = 900;
+
+        //convergence degree
+        int fract_i=0;
+
+	  //colors variable
+	  int a = 1; //no transparence
+        int r = 0;
+        int g = 0;
+        int b = 0;
+	  int p;
+	  //complex suite initial value
+	  Complex x0=new Complex(-0.011,0);
+
+	  //poly fractale:poly= x^2+poly[1]x+poly[0]
+	  Complex poly[]={new Complex(0,.636),new Complex(0,-.1)};
+
+        // Create buffered image object
+        BufferedImage img = null;
+        img = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+
+        // file object
+        File f = null;
+
+        // create random values pixel by pixel
+        for (double y = 0; y < height; y++)
+        {
+            for (double x = 0; x < width; x++)
+            {
+            //init value julia set
+            x0=new Complex(3*(x/height- .5),3*(y/height-.5));
+            //init value mandelbrot set
+	      //poly fractale:poly= x^2+poly[1]x^+poly[0]
+       	//poly[0]= new Complex(2*(x/height- 1),2*(y/height-.5));
+
+            int c = compute_fractale(poly, x0);//fractale convergence deg
+            a =255;
+            r = 0;
+            g = 0;
+            b =1000*c;
+
+            //set the pixel value
+            //p = (a<<24) | (r<<16) | (g<<8) | b;
+            p = (a<<24) | b;
+            //debug
+            //System.out.println( x+" " + y+" "+ b);
+
+            img.setRGB((int)x, (int)y, p);
+            }
+        }
+
+        // write image
+        try
+        {
+           String typ="jpg";
+            f = new File("C:\\Users\\serge\\Documents\\java\\Out."+typ);
+            ImageIO.write(img,typ, f);
+        }
+        catch(IOException e)
+        {
+            System.out.println("Error: " + e);
+        }
+    }
+}
+
